@@ -1,0 +1,4 @@
+#!ipxe
+set use-cached 1
+dhcp
+chain ${129:string}
