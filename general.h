@@ -5,3 +5,4 @@
 #define REBOOT_CMD
 #define VLAN_CMD
 #define VMWARE_SETTINGS
+#define IMAGE_PNG
