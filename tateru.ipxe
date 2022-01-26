@@ -1,0 +1,48 @@
+#!ipxe
+
+# Configure those variables (hostnames are OK if your DHCP server sets a DNS server)
+set netboot-url http://172.16.31.90/tateru
+set installer-url ${netboot-url}/installer
+set tateru-machine-service-url http://172.16.31.90:7865/
+
+# Theming
+colour --rgb 0x888888 5
+cpair --foreground 5 --background 9 1
+console --x 800 --y 600 --left 150 --right 150 --top 61 --bottom 62 --picture ${netboot-url}/tateru-ipxe.png
+
+# Boot menu
+menu Tateru PXE boot
+item tateru-installer 	Tateru installer
+item
+item local-boot 	Local disk (might not always work)
+item next-boot		Next device in boot sequence
+item ipxe-shell 	Drop to iPXE shell
+item reboot		Reboot server
+
+choose --default default --timeout 5000 os && goto ${os}
+goto menu-failed
+
+# Boot menu entries
+:default
+:tateru-installer
+    kernel	${installer-url}/arch/boot/x86_64/vmlinuz-linux loglevel=3 ip=dhcp cow_spacesize=768M archiso_http_srv=${installer-url}/ archisobasedir=arch archisolabel=TATERU svc=${tateru-machine-service-url}
+    initrd	${installer-url}/arch/boot/x86_64/initramfs-linux.img
+    boot --replace
+
+:local-boot
+    sanboot --no-describe --drive 0x80 
+
+:next-boot
+    exit
+
+:ipxe-shell
+    shell
+    exit
+
+:reboot
+    reboot
+
+:menu-failed
+    echo Failed to select entry from boot menu. Dropping you to shell. Good luck!
+    shell
+    exit
